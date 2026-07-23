@@ -1,0 +1,976 @@
+<?php
+session_start();
+// Check if admin is logged in
+if(!isset($_SESSION['admin_username'])) {
+    header('Location: adlogin.php');
+    exit();
+}
+
+$conn = mysqli_connect("localhost", "root", "", "pro_astro");
+if (!$conn) {
+    die("fail to connect");
+}
+
+// Add logout functionality
+if(isset($_POST['logout'])) {
+    session_destroy();
+    header('Location: adlogin.php');
+    exit();
+}
+
+// Handle delete operation
+if(isset($_GET['remove'])) {
+    $remove_id = $_GET['remove'];
+    mysqli_query($conn, "DELETE FROM buy WHERE no = '$remove_id'");
+    echo "<script>alert('Item removed successfully!'); window.location.href='dashboard.php';</script>";
+}
+
+// Handle delete all operation
+if(isset($_POST['alldelete'])) {
+    mysqli_query($conn, "DELETE FROM buy");
+    echo "<script>alert('All items removed successfully!'); window.location.href='dashboard.php';</script>";
+}
+
+// Add this code for handling buy functionality
+if(isset($_POST['buy'])) {
+    if(!isset($_SESSION['uid'])) {
+        echo "<script>alert('Please login first!'); window.location.href='log.php';</script>";
+        exit();
+    }
+    
+    $uid = $_SESSION['uid'];
+    $uname = $_SESSION['username'];
+    $uadd = $_POST['address']; // You'll need to add an address input field
+    $img = $_POST['img'];
+    $name = $_POST['name'];
+    $quantity = $_POST['quantity'];
+    $price = $_POST['price'];
+    $total = $price * $quantity;
+    
+    $sql = "INSERT INTO buy (uid, uname, uadd, img, name, quantity, price, total) 
+            VALUES ('$uid', '$uname', '$uadd', '$img', '$name', '$quantity', '$price', '$total')";
+    
+    if(mysqli_query($conn, $sql)) {
+        echo "<script>alert('Purchase successful!'); window.location.href='dashboard.php';</script>";
+    } else {
+        echo "<script>alert('Purchase failed! Please try again.');</script>";
+    }
+}
+
+// Add this near the top of your PHP section
+if(isset($_GET['remove_user'])) {
+    $user_id = $_GET['remove_user'];
+    mysqli_query($conn, "DELETE FROM register WHERE uid = '$user_id'");
+    echo "<script>alert('User removed successfully!'); window.location.href='dashboard.php';</script>";
+}
+
+if(isset($_POST['delete_all_users'])) {
+    mysqli_query($conn, "DELETE FROM register");
+    echo "<script>alert('All users removed successfully!'); window.location.href='dashboard.php';</script>";
+}
+
+// Handle password change
+if(isset($_POST['change_password'])) {
+    $current_password = mysqli_real_escape_string($conn, $_POST['current_password']);
+    $new_password = mysqli_real_escape_string($conn, $_POST['new_password']);
+    $confirm_password = mysqli_real_escape_string($conn, $_POST['confirm_password']);
+    
+    // Get admin username from session
+    $admin_username = $_SESSION['admin_username'];
+    
+    // First verify current password from adlog table
+    $check_query = "SELECT * FROM admin WHERE username='$admin_username' AND password='$current_password'";
+    $result = mysqli_query($conn, $check_query);
+    
+    if(mysqli_num_rows($result) > 0) {
+        // Current password is correct
+        if($new_password == $confirm_password) {
+            if(strlen($new_password) >= 6) {
+                // Update password in adlog table
+                $update_query = "UPDATE admin SET password='$new_password' WHERE username='$admin_username'";
+                if(mysqli_query($conn, $update_query)) {
+                    echo "<script>
+                        alert('Password changed successfully!');
+                        window.location.href='dashboard.php';
+                    </script>";
+                    exit();
+                } else {
+                    echo "<script>
+                        alert('Error updating password. Please try again.');
+                    </script>";
+                }
+            } else {
+                echo "<script>
+                    alert('New password must be at least 6 characters long!');
+                </script>";
+            }
+        } else {
+            echo "<script>
+                alert('New passwords do not match!');
+            </script>";
+        }
+    } else {
+        echo "<script>
+            alert('Current password is incorrect!');
+        </script>";
+    }
+}
+
+// Add this right before the closing PHP tag
+if(isset($_SESSION['password_success'])) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            alert('Password changed successfully!');
+        });
+    </script>";
+    unset($_SESSION['password_success']);
+}
+
+if(isset($_SESSION['password_error'])) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            alert('" . addslashes($_SESSION['password_error']) . "');
+            document.getElementById('passwordModal').style.display = 'block';
+        });
+    </script>";
+    unset($_SESSION['password_error']);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    /* Admin Header Styles */
+    .admin-header {
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+        padding: 15px 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+    }
+
+    .admin-info h2 {
+        color: #fff;
+        font-size: 24px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .logout-btn {
+        background-color: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .logout-btn:hover {
+        background-color: #dc3545;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Sidebar Styles */
+    .top-buttons {
+        position: fixed;
+        background: linear-gradient(180deg, #9f2800 0%, #8a2300 100%);
+        width: 250px;
+        height: 100vh;
+        /* padding-top: 80px; */
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        z-index: 900;
+    }
+
+    .admin-dashboard h2 {
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 20px;
+    }
+
+    .button-1, .button-2, .button-3, .button-4 {
+        background: transparent;
+        color: #fff;
+        padding: 15px 25px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .button-1:hover, .button-2:hover, .button-3:hover, .button-4:hover {
+        background: rgba(255,255,255,0.1);
+        border-left: 4px solid #d57e2f;
+        transform: none;
+    }
+
+    /* Content Area Styles */
+    .info-1, .info-2, .info-3, .info-4 {
+        margin-left: 250px;
+        margin-top: 80px;
+        padding: 30px;
+        min-height: calc(100vh - 80px);
+        background-color: #f8f9fa;
+        border: none;
+        position: relative;
+    }
+
+    /* Dashboard Blocks */
+    .flex {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .sectionblock {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 200px;
+        border: none;
+        overflow: hidden;
+    }
+
+    .sectionblock:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .headblock {
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+        color: white;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: 500;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .sectionblock a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: calc(100% - 60px);
+        text-decoration: none;
+        color: #9f2800;
+        font-size: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .sectionblock a:hover {
+        color: #d57e2f;
+    }
+
+    /* Table Styles */
+    .cart-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 40px;
+        margin: 30px;
+    }
+
+    .cart-container h2 {
+        color: #9f2800;
+        font-size: 32px;
+        margin-bottom: 30px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .cart-container h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+        border-radius: 2px;
+    }
+
+    /* Table Styles */
+    .shop-table {
+        width: 100%;
+        border-spacing: 0 10px;
+        border-collapse: separate;
+        margin: 20px 0;
+    }
+
+    .shop-table th {
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+        color: white;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 14px;
+        padding: 20px 15px;
+        letter-spacing: 1px;
+    }
+
+    .shop-table th:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .shop-table th:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .shop-table tr {
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .shop-table tr:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .shop-table td {
+        background: white;
+        padding: 20px 15px;
+        vertical-align: middle;
+        border: none;
+    }
+
+    .shop-table td:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .shop-table td:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+
+    /* Image Styles */
+    .imgsize {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .imgsize:hover {
+        transform: scale(1.1);
+    }
+
+    /* Price and Total Columns */
+    .price-column, .total-column {
+        font-weight: 600;
+        color: #9f2800;
+    }
+
+    /* Action Button */
+    .delete-btn {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+    }
+
+    .delete-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Cart Actions Section */
+    .cart-actions {
+        background: linear-gradient(to right, #f8f9fa, white);
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .grand-total {
+        font-size: 24px;
+        font-weight: 700;
+        color: #9f2800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .grand-total::before {
+        content: '💰';
+        font-size: 28px;
+    }
+
+    /* Empty Cart Message */
+    .empty-cart-message {
+        text-align: center;
+        padding: 40px;
+        font-size: 20px;
+        color: #666;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+
+    /* User Account Table Specific Styles */
+    .user-id {
+        font-weight: 600;
+        color: #9f2800;
+    }
+
+    .username {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .email {
+        color: #666;
+        font-style: italic;
+    }
+
+    .mobile {
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    .password {
+        font-family: monospace;
+        letter-spacing: 2px;
+        color: #666;
+    }
+
+    /* Enhance table styles for user accounts */
+    .shop-table tr:nth-child(even) {
+        background-color: rgba(159, 40, 0, 0.02);
+    }
+
+    .shop-table tr:hover td {
+        background-color: rgba(213, 126, 47, 0.05);
+    }
+
+    /* Style modifications for user count */
+    .info-4 .grand-total::before {
+        content: '��';
+    }
+
+    .info-4 .cart-container h2::after {
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+    }
+
+    /* Delete button variations */
+    .info-4 .delete-btn {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        opacity: 0.9;
+    }
+
+    .info-4 .delete-btn:hover {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+
+    /* Empty state styling */
+    .info-4 .empty-cart-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        background: linear-gradient(to right, #f8f9fa, white);
+    }
+
+    .info-4 .empty-cart-message p {
+        font-size: 24px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        width: 400px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translate(-50%, -60%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .close-modal {
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+        transform: scale(1.1);
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+        border-color: #9f2800;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(159, 40, 0, 0.1);
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .cancel-btn, .save-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-btn {
+        background: #f8f9fa;
+        color: #333;
+    }
+
+    .save-btn {
+        background: linear-gradient(135deg, #9f2800 0%, #d57e2f 100%);
+        color: white;
+    }
+
+    .cancel-btn:hover, .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Add this to your existing admin-actions styles */
+    .change-password-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border: 2px solid white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        margin-right: 10px;
+        margin-left: 800px;
+    }
+
+    .change-password-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+<body>
+    <div class="admin-header">
+        <div class="admin-info">
+            <h2>Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?></h2>
+        </div>
+        <div class="admin-actions">
+            <button type="button" class="change-password-btn">
+                Change Password
+            </button>
+            <form method="POST" style="display: inline;">
+                <button type="submit" name="logout" class="logout-btn" 
+                        onclick="return confirm('Are you sure you want to logout?')">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Admin Password</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form  method="POST">
+                    <div class="input-group">
+                        <label>Current Password</label>
+                        <input type="password" name="current_password" required>
+                    </div>
+                    <div class="input-group">
+                        <label>New Password</label>
+                        <input type="password" name="new_password" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" name="confirm_password" required>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="cancel-btn">Cancel</button>
+                        <button type="submit" name="change_password" class="save-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="top-buttons">
+        <div class="admin-dashboard">
+            <h2>admin</h2>
+            <nav>
+                <ul>
+                    <button class="button-1">dashboard</button>
+                    <button class="button-2">shop</button>
+                    <button class="button-3" hidden>course</button>
+                    <button class="button-4">user account</button>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="info-1" style="display: block;">
+        <h2>dashboard</h2>
+        <p>
+        <div class="flex">
+            <div class="sectionblock">
+                <div class="headblock">Add All Zodiacsign Prediction</div>
+                <a class="a" href="dailyzodiac.php">Prediction</a>
+            </div>
+
+            <div class="sectionblock">
+                <div class="headblock">Add Event(Tithi)</div>
+                <a href="addeventtithi.php"> calendar</a>
+            </div>
+
+            <div class="sectionblock">
+                <div class="headblock">Add Event(Date)</div>
+                <a href="addeventdate.php"> calendar</a>
+            </div>
+
+            <div class="sectionblock">
+                <div class="headblock">Add Item</div>
+                <a class="a" href="additem.php"><?PHP $SQL = "select * from additem";
+                                                $query = mysqli_query($conn, $SQL);
+                                                echo mysqli_num_rows($query);
+
+                                                ?><br>Add Item</a>
+            </div>
+
+
+            <div class="sectionblock">
+                <div class="headblock">Users</div>
+
+                <a class="a" href="count.php"><?PHP $SQL = "select * from register";
+                                                $query = mysqli_query($conn, $SQL);
+                                                echo mysqli_num_rows($query);
+
+                                                ?><br>Total User</a>
+            </div>
+        </div>
+        </p>
+    </div>
+
+    <div class="info-2" style="display: none;">
+        <h2></h2>
+        <p>
+
+        <div class="cart-container">
+            <h2>Delivery Information</h2>
+            <table class="shop-table">
+                <?php
+                $query = mysqli_query($conn, "SELECT * FROM buy");
+                if (mysqli_num_rows($query) > 0) {
+                    echo "<tr>
+                <th>User ID</th>
+                <th>User Name</th>
+                <th>Address</th>
+                <th>Item No</th>
+                <th>Image</th>
+                <th>Item Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>";
+                    $num = 1;
+                    $grand_total = 0;
+                    while ($data = mysqli_fetch_assoc($query)) {
+                        $total = $data['price'] * $data['quantity'];
+                        $imgPath = str_replace('\\', '/', $data['img']);
+                        $imgPath = str_replace('images/', '../images/', $imgPath);
+                        
+                        echo "<tr>
+                <td>" . number_format($data['uid']) . "</td>
+                <td>" . htmlspecialchars($data['uname']) . "</td>
+                <td>" . htmlspecialchars($data['uadd']) . "</td>
+                <td>{$num}</td>
+                <td><img src='" . $imgPath . "' class='imgsize' alt='Product Image'></td>
+                    <td>" . htmlspecialchars($data['name']) . "</td>
+                    <td class='price-column'>$" . number_format($data['price'], 2) . "</td>
+                    <td>" . number_format($data['quantity']) . "</td>
+                    <td class='total-column'>$" . number_format($total, 2) . "</td>
+                    <td><a href='dashboard.php?remove={$data['no']}' class='delete-btn' 
+                        onclick='return confirm(\"Are you sure you want to remove this item?\");'>
+                        Remove</a></td>
+                </tr>";
+                        $grand_total += $total;
+                        $num++;
+                    }
+                } else {
+                    echo "<tr><td colspan='10'><div class='empty-cart-message'>
+                    <p>📭 Your Cart is Empty</p>
+                </div></td></tr>";
+                }
+                ?>
+            </table>
+            <?php if ($grand_total > 0) { ?>
+                <div class="cart-actions">
+                    <div class="grand-total">Grand Total: $<?php echo number_format($grand_total, 2); ?></div>
+                    <form method="POST" onsubmit="return confirm('Are you sure you want to delete all items?');">
+                        <button type="submit" class="delete-btn" name="alldelete">Delete All</button>
+                    </form>
+                </div>
+            <?php } ?>
+        </div>
+
+        </p>
+    </div>
+
+    <div class="info-3" style="display: none;">
+        <h2>course</h2>
+        <p></p>
+    </div>
+
+    <div class="info-4" style="display: none;">
+        <div class="cart-container">
+            <h2>User Account Management</h2>
+            <table class="shop-table">
+                <?php
+                $query = mysqli_query($conn, "SELECT * FROM register");
+                if (mysqli_num_rows($query) > 0) {
+                    echo "<tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email Address</th>
+                        <th>Mobile Number</th>
+                        <th>Password</th>
+                        <th>Action</th>
+                    </tr>";
+                    while ($data = mysqli_fetch_assoc($query)) {
+                        echo "<tr>
+                            <td class='user-id'>" . number_format($data['uid']) . "</td>
+                            <td class='username'>" . htmlspecialchars($data['us']) . "</td>
+                            <td class='email'>" . htmlspecialchars($data['em']) . "</td>
+                            <td class='mobile'>" . number_format($data['num']) . "</td>
+                            <td class='password'>•••••••••</td>
+                            <td><a href='dashboard.php?remove_user={$data['uid']}' class='delete-btn' 
+                                onclick='return confirm(\"Are you sure you want to remove this user?\");'>
+                                Remove</a></td>
+                        </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='6'><div class='empty-cart-message'>
+                            <p>👤 No Users Registered</p>
+                        </div></td></tr>";
+                }
+                ?>
+            </table>
+            <?php if (mysqli_num_rows($query) > 0) { ?>
+                <div class="cart-actions">
+                    <div class="grand-total">Total Users: <?php echo mysqli_num_rows($query); ?></div>
+                    <form method="POST" onsubmit="return confirm('Are you sure you want to delete all users? This action cannot be undone!');">
+                        <button type="submit" class="delete-btn" name="delete_all_users">Delete All Users</button>
+                    </form>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+    const button1 = document.querySelector('.button-1');
+    const button2 = document.querySelector('.button-2');
+    const button3 = document.querySelector('.button-3');
+    const button4 = document.querySelector('.button-4');
+
+    const info1 = document.querySelector('.info-1');
+    const info2 = document.querySelector('.info-2');
+    const info3 = document.querySelector('.info-3');
+    const info4 = document.querySelector('.info-4');
+
+    button1.addEventListener('click', () => {
+        info1.style.display = 'block';
+        info2.style.display = 'none';
+        info3.style.display = 'none';
+        info4.style.display = 'none';
+    });
+
+    button2.addEventListener('click', () => {
+        info1.style.display = 'none';
+        info2.style.display = 'block';
+        info3.style.display = 'none';
+        info4.style.display = 'none';
+    });
+
+    button3.addEventListener('click', () => {
+        info1.style.display = 'none';
+        info2.style.display = 'none';
+        info3.style.display = 'block';
+        info4.style.display = 'none';
+    });
+
+    button4.addEventListener('click', () => {
+        info1.style.display = 'none';
+        info2.style.display = 'none';
+        info3.style.display = 'none';
+        info4.style.display = 'block';
+    });
+
+    // Get modal elements
+    const modal = document.getElementById('passwordModal');
+    const changePasswordBtn = document.querySelector('.change-password-btn');
+    const closeBtn = document.querySelector('.close-modal');
+    const cancelBtn = document.querySelector('.cancel-btn');
+    const form = document.getElementById('passwordForm');
+
+    // Open modal
+    changePasswordBtn.onclick = function() {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    // Close modal functions
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Enable scrolling
+        form.reset(); // Reset form
+    }
+
+    closeBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Form validation
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        const newPass = form.querySelector('input[name="new_password"]').value;
+        const confirmPass = form.querySelector('input[name="confirm_password"]').value;
+        
+        if(newPass !== confirmPass) {
+            alert('New passwords do not match!');
+            return false;
+        }
+        
+        // If validation passes, submit the form
+        this.submit();
+    }
+</script>
