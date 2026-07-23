@@ -1,0 +1,229 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+div {
+    display: block;
+    unicode-bidi: isolate;
+}
+
+body {
+    color: #581e00;
+    background: #d57e2f;
+}
+
+/* FOR MAIN HEAD
+.mainpart {
+    height: auto;
+    margin: 0 auto;
+    padding: 0 100px 20px;
+    background-color: #d57e2f;
+}*/
+
+.dptitlecon {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.6rem;
+    margin: 6px auto;
+    line-height: 1.3;
+    font-weight: 600;
+    padding: 6px 6px 0;
+}
+
+.separatorline {
+    height: 1px;
+    margin-bottom: 15px;
+    background: linear-gradient(to right, #eaac5b, #781e00, #eaac5b);
+}
+
+.main {
+    margin-left: 250px;
+    margin-right: 250px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.block {
+    color: #781e00;
+    background: #efb86f;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    width: 170px;
+    border-radius: 7px;
+    text-align: center;
+    margin: 5px;
+    line-height: 1.3;
+}
+
+.singleblock {
+    cursor: pointer;
+    transition: transform .2s ease-in-out;
+}
+
+a {
+    text-decoration: none;
+    color: #581e00;
+}
+
+.blockimg {
+    margin: 0 auto;
+    padding: 20px 30px;
+    border-radius: 4px 4px 0 0;
+
+}
+
+.dpcontainer {
+    height: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.dpratio {
+    padding-bottom: 100%;
+}
+
+.dpcontainerimg {
+    border-radius: 4px 4px 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.blocktitle {
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    font-weight: 500;
+    padding: 10px 6px;
+    position: relative;
+    font-size: 0.9rem;
+}
+
+/* Greeting card */
+
+.main1 {
+    margin-left: 250px;
+    margin-right: 250px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.greetingblock {
+    margin: 6px;
+    width: 300px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 6px;
+}
+
+.dpcontainer1 {
+    background: #eaae57;
+    border: 1px solid #bc6031;
+    border-radius: 3px;
+    display: block;
+    height: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.dpratio1 {
+    padding-bottom: 66.8%;
+}
+
+/* Mehandi */
+
+.mehandiblock {
+    color: #781e00;
+    background: #efb86f;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    width: 160px;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .2s ease-in-out;
+    margin: 3px;
+    line-height: 1.3;
+}
+
+.dpcontainer2 {
+    height: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.dpratio2 {
+    padding-bottom: 150%;
+}
+/* Hindufest*/
+.dpcontainerfest{
+    height: 170px;
+    overflow: hidden;
+    position: relative;
+}
+/* Ganesha */
+
+.dpcontainerimg1 {
+    border-radius: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 8px;
+    height: 100%;
+}
+
+.dpratiogan {
+    padding-bottom: 80%;
+}
+
+.blocktitleg{
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    font-weight: 500;
+    padding: 5px 3px;
+    position: relative;
+    font-size: 0.8rem;
+
+}
+
+/* Chaturthi */
+.dpcontainerimg1{
+    border-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.block1{
+    color: #781e00;
+    background: #efb86f;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    width: 200px;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+/* Indian */
+
+.dpcontainerin{
+    height: 165px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Krishna */
+
+.dpcontainerkr{
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+/*Zoom */

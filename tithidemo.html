@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tithi Calculator</title>
+    <script src="https://unpkg.com/astronomy-engine"></script>
+</head>
+
+<body>
+    <h2>Today's Tithi</h2>
+    <div id="output"></div>
+
+    <script>
+        function calculateTithi() {
+            const date = new Date();
+
+            // Geocentric ecliptic longitudes
+            const sunLon = Astronomy.EclipticLongitude("Sun", date);
+            const moonLon = Astronomy.EclipticLongitude("Moon", date);
+
+            // Difference Moon - Sun
+            let diff = (moonLon - sunLon + 360) % 360;
+            let tithi_num = Math.floor(diff / 12) + 1;
+
+            // Tithi names
+            const tithiNames = [
+                "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+                "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
+                "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima / Amavasya"
+            ];
+
+            let paksha, tithiName;
+            if (tithi_num <= 15) {
+                paksha = "Shukla Paksha";
+                tithiName = tithiNames[tithi_num - 1];
+            } else {
+                paksha = "Krishna Paksha";
+                tithiName = tithiNames[tithi_num - 16];
+            }
+
+            document.getElementById("output").innerHTML =
+                `Date: ${date.toDateString()}<br>
+         Tithi: <b>${tithiName}</b> (${paksha})<br>
+         Tithi Number: ${tithi_num}<br>
+         Moon Lon: ${moonLon.toFixed(2)}°<br>
+         Sun Lon: ${sunLon.toFixed(2)}°<br>
+         Diff: ${diff.toFixed(2)}°`;
+        }
+
+        calculateTithi();
+    </script>
+</body>
+
+</html>
