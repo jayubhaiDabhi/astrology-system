@@ -1,0 +1,245 @@
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    div {
+        display: block;
+        unicode-bidi: isolate;
+    }
+
+    body {
+        color: #581e00;
+        background: #d57e2f;
+    }
+
+    .dptitlecon {
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.6rem;
+        margin: 6px auto;
+        line-height: 1.3;
+        font-weight: 600;
+        padding: 6px 6px 0;
+    }
+
+    .separatorline {
+        height: 1px;
+        margin-bottom: 15px;
+        background: linear-gradient(to right, #eaac5b, #781e00, #eaac5b);
+    }
+
+    .main {
+        margin-left: 250px;
+        margin-right: 250px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .block {
+        color: #781e00;
+        background: #efb86f;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+        width: 170px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 5px;
+        line-height: 1.3;
+    }
+
+    .singleblock {
+        cursor: pointer;
+        transition: transform .2s ease-in-out;
+    }
+
+    /*.singleblock:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }*/
+    
+
+    a {
+        text-decoration: none;
+        color: #581e00;
+    }
+
+    .blockimg {
+        margin: 0 auto;
+        padding: 20px 20px;
+        border-radius: 4px 4px 0 0;
+    }
+    
+    .dpcontainer {
+        height: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .dpratio {
+        padding-bottom: 100%;
+    }
+
+    .dpcontainerimg {
+        border-radius: 4px 4px 0 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    .blocktitle {
+        border-top: 1px solid rgba(0, 0, 0, .1);
+        font-weight: 500;
+        padding: 10px 6px;
+        position: relative;
+        font-size: 1.2rem;
+    }
+
+    .para {
+        margin: 6px auto;
+        text-align: left;
+        font-size: 1.5rem;
+        padding: 10px;
+        padding-left: 150px;
+        padding-right: 150px;
+    }
+
+    .title {
+        font-size: 1.6rem;
+        /* max-width: 760px; */
+        margin: 6px 150px;
+        line-height: 1.3;
+        font-weight: 600;
+        padding: 6px 6px 0;
+    }
+
+    .content {
+        margin-left: auto;
+        margin-right: auto;
+        /* max-width: 760px; */
+        margin: 6px auto;
+        text-align: left;
+        font-size: 1.5rem;
+        word-wrap: break-word;
+        padding: 0 6px 10px;
+    }
+
+    .jscontent {
+        margin: 6px auto;
+
+        padding: 0 6px 10px;
+    }
+
+    .jsfigure {
+        background: #eaae57;
+        width: 300px;
+        height: 300px;
+        border: 1px solid rgba(0, 0, 0, .1);
+        margin-top: 18px;
+        margin-bottom: 6px;
+        border-radius: 30px;
+    }
+
+    .jscenterimg {
+        margin: 0 auto;
+        display: block;
+    }
+
+    .jsimg {
+
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .jsratio {
+        padding-bottom: 100%;
+    }
+
+    .jscontentimg {
+        max-width: 100%;
+        margin: 0 auto;
+        display: block;
+        border-radius: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .main1 {
+        margin-left: 150px;
+        margin-right: 150px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Transit Grah*/
+
+    .list {
+        width: 100%;
+        margin: 10px auto 6px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .jscard {
+        background: #f7be67;
+        box-shadow: 0 0 1px rgba(0, 0, 0, .2);
+        border: 1px solid rgba(188, 96, 49, .3);
+        color: #650000;
+        margin: 0 8px 10px;
+        border-radius: 8px;
+        padding: 25px 50px 25px 50px;
+        flex-basis: 80%;
+        max-width: 400px;
+        position: relative;
+        flex: 1;
+    }
+
+    .titalrashi {
+        color: #a00;
+        font-size: 1.4rem;
+    }
+
+    .iconset {
+        width: 18px;
+        height: 18px;
+        margin-left: 10px;
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        vertical-align: middle;
+    }
+
+    .datevalue {
+        font-size: 1.1rem;
+    }
+
+    .circle {
+        color: #eaac5b;
+        background: #a00;
+        top: -3px;
+        left: -3px;
+        height: 30px;
+        min-width: 30px;
+        font-size: 1.3rem;
+        padding-top: 5px;
+        line-height: 1;
+        font-weight: 550;
+        padding: 5px 3px 0;
+        text-align: center;
+        position: absolute;
+        border-radius: 50%;
+        display: inline-block;
+    }
