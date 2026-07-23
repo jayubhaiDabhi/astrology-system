@@ -1,0 +1,51 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9f9f9;
+    margin: 2em;
+    color: #222;
+}
+
+.container {
+    max-width: 750px;
+    margin: auto;
+    background: white;
+    padding: 1.5em 2em;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    margin-right: 1em;
+    font-weight: 600;
+}
+
+input,
+select {
+    margin-right: 1em;
+    padding: 0.3em 0.5em;
+    font-size: 1em;
+}
+
+button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    margin-top: 1em;
+    cursor: pointer;
+    background: #007acc;
+    border: none;
+    color: white;
+    border-radius: 4px;
+}
+
+button:hover {
+    background: #005fa3;
+}
+
+.chart-container {
+    margin-top: 2em;
+}
+
+.chart-container p {
+    margin: 0.3em 0;
+    font-size: 1.1em;
+}
