@@ -1,0 +1,13 @@
+{
+    "require": {
+        "kunalvarma05/ephemeris-php": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/kunalvarma05/ephemeris-php"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
